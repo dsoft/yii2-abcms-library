@@ -4,6 +4,7 @@ namespace abcms\library\behaviors;
 
 use Yii;
 use yii\helpers\StringHelper;
+use yii\helpers\Inflector;
 
 class SeoBehavior extends \yii\base\Behavior
 {
@@ -12,6 +13,9 @@ class SeoBehavior extends \yii\base\Behavior
     public $titleAttribute = 'title';
     public $descriptionAttribute = 'description';
     public $route = '';
+    public $titlePrefix = '';
+    public $titlePrefixSeparator = ' - ';
+    public $titleSuffix = true;
 
     /**
      * @inheritdoc
@@ -28,14 +32,7 @@ class SeoBehavior extends \yii\base\Behavior
     {
         $owner = $this->owner;
         $title = $owner->{$this->titleAttribute};
-        $title = strip_tags($title);
-        $title = rtrim($title);      
-        $title = str_replace(' ', '-', $title);
-        $title = preg_replace('/[^\x{0600}-\x{06FF}A-Za-z0-9\-]/u', '', $title);
-        $title = preg_replace('/-+/', '-', $title);
-        if(!preg_match('/\p{Arabic}/u', $title)){
-            $title = strtolower($title);
-        }
+        $title = Inflector::slug($title);
         return $title;
     }
 
@@ -43,36 +40,48 @@ class SeoBehavior extends \yii\base\Behavior
     {
         return $this->owner->{$this->primaryKeyAttribute};
     }
-    
-    public function getTitle(){
+
+    public function getTitle()
+    {
         return $this->owner->{$this->titleAttribute};
     }
-    
-    public function getDescription(){
+
+    public function getDescription()
+    {
         return $this->owner->{$this->descriptionAttribute};
     }
 
     public function frontUrl($params = [])
     {
-        $params[0]=$this->route;
-        $params['id'] =  $this->id;
-        $params['urlTitle'] =  $this->urlTitle;
+        $params[0] = $this->route;
+        $params['id'] = $this->id;
+        $params['urlTitle'] = $this->urlTitle;
         return \yii\helpers\Url::to($params);
     }
-    
-    public function tags(){
+
+    public function tags()
+    {
         $view = Yii::$app->view;
         $view->title = $this->getMetaTitle();
-        if($this->descriptionAttribute){
+        if($this->descriptionAttribute) {
             $view->registerMetaTag(['name' => 'description', 'content' => $this->getMetaDescription()], 'description');
         }
     }
-    
-    public function getMetaTitle(){
-        return Yii::$app->name . ' - '.$this->title;
+
+    public function getMetaTitle()
+    {
+        $title = $this->title;
+        if($this->titlePrefix){
+            $title = $this->titlePrefix.$this->titlePrefixSeparator.$title;
+        }
+        if($this->titleSuffix){
+            $title .= ' - '.Yii::$app->name;
+        }
+        return $title;
     }
-    
-    public function getMetaDescription(){ 
+
+    public function getMetaDescription()
+    {
         $description = StringHelper::truncateWords(strip_tags($this->getDescription()), 25);
         return $description;
     }

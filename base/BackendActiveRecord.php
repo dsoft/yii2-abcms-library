@@ -10,13 +10,13 @@ use yii\web\NotFoundHttpException;
 class BackendActiveRecord extends ActiveRecord
 {
 
-    public $enableTime = true;
+    public static $enableTime = true;
     public static $enableOrdering = true;
 
     public function behaviors()
     {
         $array = [];
-        if($this->enableTime) {
+        if(static::$enableTime) {
             $array[] = [
                 'class' => TimestampBehavior::className(),
                 'attributes' => [
