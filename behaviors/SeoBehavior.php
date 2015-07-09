@@ -4,7 +4,7 @@ namespace abcms\library\behaviors;
 
 use Yii;
 use yii\helpers\StringHelper;
-use yii\helpers\Inflector;
+use abcms\library\helpers\Inflector;
 
 class SeoBehavior extends \yii\base\Behavior
 {
@@ -71,10 +71,10 @@ class SeoBehavior extends \yii\base\Behavior
     public function getMetaTitle()
     {
         $title = $this->title;
-        if($this->titlePrefix){
+        if($this->titlePrefix) {
             $title = $this->titlePrefix.$this->titlePrefixSeparator.$title;
         }
-        if($this->titleSuffix){
+        if($this->titleSuffix) {
             $title .= ' - '.Yii::$app->name;
         }
         return $title;
@@ -84,6 +84,19 @@ class SeoBehavior extends \yii\base\Behavior
     {
         $description = StringHelper::truncateWords(strip_tags($this->getDescription()), 25);
         return $description;
+    }
+
+    /**
+     * Check if website is multi language
+     * @return boolean
+     */
+    public function isMultiLanguage()
+    {
+        $result = false;
+        if(isset(Yii::$app->params['seo']['isMultiLanguage'])) {
+            $result = Yii::$app->params['seo']['isMultiLanguage'];
+        }
+        return $result;
     }
 
 }
