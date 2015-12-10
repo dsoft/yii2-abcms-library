@@ -77,6 +77,7 @@ class SeoBehavior extends \yii\base\Behavior
         if($this->titleSuffix) {
             $title .= ' - '.Yii::$app->name;
         }
+        $title = strip_tags($title);
         return $title;
     }
 

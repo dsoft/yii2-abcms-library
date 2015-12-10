@@ -19,6 +19,12 @@ class ImageUploadBehavior extends Behavior
     public $sizes = [];
     public $required = true;
     public $requiredOn = 'create';
+    
+    /**
+     *
+     * @var boolean Whether to check file type (extension) with mime-type on validation.
+     */
+    public $checkExtensionByMimeType = true;
 
     /**
      * @inheritdoc
@@ -39,7 +45,7 @@ class ImageUploadBehavior extends Behavior
         parent::attach($owner);
         $attribute = $this->attribute;
         $validators = $owner->getValidators();
-        $imageValidator = Validator::createValidator('image', $owner, $attribute, ['extensions' => 'png, jpg']);
+        $imageValidator = Validator::createValidator('image', $owner, $attribute, ['extensions' => 'png, jpg', 'checkExtensionByMimeType'=>$this->checkExtensionByMimeType]);
         $validators->append($imageValidator);
         if($this->required) {
             $options = [];
