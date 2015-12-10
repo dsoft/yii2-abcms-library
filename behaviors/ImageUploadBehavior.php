@@ -10,6 +10,7 @@ use yii\web\UploadedFile;
 use yii\helpers\FileHelper;
 use yii\base\ErrorException;
 use yii\imagine\Image;
+use yii\helpers\StringHelper;
 
 class ImageUploadBehavior extends Behavior
 {
@@ -102,12 +103,17 @@ class ImageUploadBehavior extends Behavior
 
     protected function saveSizes($mainFolder, $imageName)
     {
+        $options = array();
+        if(StringHelper::endsWith($imageName, 'jpg', false) || StringHelper::endsWith($imageName, 'jpeg', false)) {
+            // Keep good quality if image is jpeg
+            $options = array('quality' => 95);
+        }
         $sizes = (array) $this->sizes;
         foreach($sizes as $name => $size) {
             if(isset($size['width'], $size['height'])) {
                 $folderName = $mainFolder.$name.'/';
                 if(FileHelper::createDirectory($folderName)) {
-                    Image::thumbnail($mainFolder.$imageName, $size['width'], $size['height'])->save($folderName.$imageName, array('quality' => 95));
+                    Image::thumbnail($mainFolder.$imageName, $size['width'], $size['height'])->save($folderName.$imageName, $options);
                 }
                 else {
                     throw new ErrorException('Unable to create directoy.');
@@ -138,16 +144,16 @@ class ImageUploadBehavior extends Behavior
     {
         $owner = $this->owner;
         $folderName = $this->returnFolderName();
-        if($size){
+        if($size) {
             $folderName .= "/$size";
         }
-        if(!$attribute){
+        if(!$attribute) {
             $attribute = $this->attribute;
         }
         $imageName = $owner->getAttribute($attribute);
         $return = null;
-        if($imageName){
-            $return =  Yii::getAlias('@web/uploads/'.$folderName.'/'.$imageName);
+        if($imageName) {
+            $return = Yii::getAlias('@web/uploads/'.$folderName.'/'.$imageName);
         }
         return $return;
     }
