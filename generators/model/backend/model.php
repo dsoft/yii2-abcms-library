@@ -14,6 +14,7 @@
 
 echo "<?php\n";
 $imagesAttributes = $generator->imagesAttributes($tableSchema);
+$translationAttributes = $generator->translationAttributes($tableSchema);
 ?>
 
 namespace <?= $generator->ns ?>;
@@ -64,19 +65,31 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
         return [<?= "\n            " . implode(",\n            ", $rules) . "\n        " ?>];
     }
     
-<?php if ($imagesAttributes): ?>
+<?php if ($imagesAttributes || $translationAttributes): ?>
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
         return array_merge(parent::behaviors(), [
-<?php foreach($imagesAttributes as $image): ?>
+<?php if($translationAttributes): ?>
+            [
+                'class' => \abcms\multilanguage\ModelBehavior::className(),
+                'attributes' => [
+<?php foreach($translationAttributes as $translation): ?>
+                    '<?php echo $translation; ?>',
+<?php endforeach; ?>
+                ],
+            ],
+<?php endif; ?>
+<?php if($imagesAttributes):
+    foreach($imagesAttributes as $image): ?>
             [
                 'class' => ImageUploadBehavior::className(),
                 'attribute' => '<?php echo $image; ?>',
             ],
-<?php endforeach; ?>
+<?php endforeach;
+    endif; ?>
         ]);
     }
 <?php endif; ?>

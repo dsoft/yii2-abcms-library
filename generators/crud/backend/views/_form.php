@@ -34,6 +34,9 @@ use yii\widgets\ActiveForm;
         echo "    <?= " . $generator->generateActiveField($attribute) . " ?>\n\n";
     }
 } ?>
+    
+    <?= '<?= \abcms\multilanguage\widgets\TranslationForm::widget([\'model\' => $model]) ?>' ?>
+    
     <div class="form-group">
         <?= "<?= " ?>Html::submitButton($model->isNewRecord ? <?= $generator->generateString('Create') ?> : <?= $generator->generateString('Update') ?>, ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>

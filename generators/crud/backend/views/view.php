@@ -64,5 +64,11 @@ if (($tableSchema = $generator->getTableSchema()) === false) {
 ?>
         ],
     ]) ?>
+    
+    <?=    '<?=
+    \abcms\multilanguage\widgets\TranslationView::widget([
+        \'model\' => $model,
+    ])
+    ?>' ?>
 
 </div>

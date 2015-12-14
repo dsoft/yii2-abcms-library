@@ -21,6 +21,20 @@ class Generator extends \yii\gii\generators\model\Generator
     public $imagesAttributes = [
             'image', 'thumb', 'thumbnail', 'logo'
         ];
+    
+    /**
+     *
+     * @var array Posiible name of attributes that should be translated
+     * Where key is the attribute name, and value is how it should be displayed in the Model behavior
+     */
+    public $translationAttributes = [
+        'title'=>'title',
+        'description'=>'description:text-editor', 
+        'name'=>'name',
+        'smallDescription'=>'smallDescription',
+        'question'=>'question',
+        'answer'=>'answer:text-editor'
+    ];
 
     /**
      * @inheritdoc
@@ -113,6 +127,23 @@ class Generator extends \yii\gii\generators\model\Generator
         foreach($table->columnNames as $name){
             if(in_array($name, $this->imagesAttributes)){
                 $array[] = $name;
+            }
+        }
+        return $array;
+    }
+    
+    /**
+     * Returns translation attributes for certain table.
+     * Compare table attributes to [[translationAttributes]] keys
+     * @param \yii\db\TableSchema $table
+     * @return array
+     */
+    public function translationAttributes($table){
+        $array = [];
+        $attributes = $this->translationAttributes;
+        foreach($table->columnNames as $name){
+            if(key_exists($name, $attributes)){
+                $array[$name] = $attributes[$name];
             }
         }
         return $array;
