@@ -10,20 +10,24 @@ class BackendActiveQuery extends ActiveQuery
     public $enableOrdering = true;
 
     public $enableDeleted = true;
+    
+    public $tableName = '';
 
     public function init()
     {
-        $orderBy = ($this->enableOrdering) ? 'ordering ASC, id DESC' : 'id DESC';
+        $tableName = $this->tableName;
+        $orderBy = ($this->enableOrdering) ? "$tableName.ordering ASC, $tableName.id DESC" : "$tableName.id DESC";
         $this->orderBy($orderBy);
         if($this->enableDeleted){
-            $this->andWhere(['deleted'=>0]);
+            $this->andWhere(["$tableName.deleted"=>0]);
         }
         parent::init();
     }
 
     public function active($state = true)
     {
-        return $this->andWhere(['active' => $state]);
+        $tableName = $this->tableName;
+        return $this->andWhere(["$tableName.active" => $state]);
     }
 
 }

@@ -12,6 +12,7 @@ class BackendActiveRecord extends ActiveRecord
 
     public static $enableTime = true;
     public static $enableOrdering = true;
+    public static $enableDeleted = true;
 
     public function behaviors()
     {
@@ -31,7 +32,12 @@ class BackendActiveRecord extends ActiveRecord
 
     public static function find()
     {
-        return new BackendActiveQuery(get_called_class(), ['enableOrdering'=>static::$enableOrdering]);
+        $tableName = static::tableName();
+        return new BackendActiveQuery(get_called_class(), [
+            'enableOrdering' => static::$enableOrdering,
+            'enableDeleted' => static::$enableDeleted,
+            'tableName'=>$tableName,
+        ]);
     }
 
     /**
@@ -51,22 +57,27 @@ class BackendActiveRecord extends ActiveRecord
 
     public function delete()
     {
-        if(!$this->beforeDelete()) {
-            return false;
+        if(self::$enableDeleted) {
+            if(!$this->beforeDelete()) {
+                return false;
+            }
+            $this->deleted = 1;
+            $result = $this->save(false);
+            $this->setOldAttributes(null);
+            $this->afterDelete();
+            return $result;
         }
-        $this->deleted = 1;
-        $result = $this->save(false);
-        $this->setOldAttributes(null);
-        $this->afterDelete();
-        return $result;
+        else {
+            return parent::delete();
+        }
     }
 
     public static function findModel($id, $active = true)
     {
         $className = self::className();
         $condition = $id;
-        if($active){
-            $condition = ['id'=>$id, 'active'=>1];
+        if($active) {
+            $condition = ['id' => $id, 'active' => 1];
         }
         if(($model = $className::findOne($condition)) !== null) {
             return $model;
