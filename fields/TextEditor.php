@@ -14,13 +14,26 @@ class TextEditor extends Field
      * @inheritdocs
      */
     public $inputOptions = ['class' => 'form-control', 'rows' => 6];
+    
+    public $settings = [
+            'minHeight' => 200,
+        ];
 
     /**
      * Renders field input
      */
     public function renderInput()
     {
-        return Html::activeTextarea($this->model, $this->attributeExpression, $this->inputOptions);
+        $attr = Html::getInputName($this->model, $this->attributeExpression);
+        $settings = $this->settings;
+        if($this->language == 'ar') {
+            $settings['direction'] = 'rtl';
+        }
+        return \vova07\imperavi\Widget::widget([
+                    'name' => $attr,
+                    'value' => $this->value,
+                    'settings' => $settings,
+        ]);
     }
 
     /**
@@ -31,7 +44,7 @@ class TextEditor extends Field
         $array = [
             'attribute' => $this->attribute,
             'value' => $this->renderValue(),
-            'format'=> 'html',
+            'format' => 'html',
         ];
         return $array;
     }

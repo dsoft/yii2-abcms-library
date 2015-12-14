@@ -40,6 +40,12 @@ abstract class Field extends Object
      * The options used to render the html input
      */
     public $inputOptions = ['class' => 'form-control'];
+    
+    /**
+     * @var string
+     * Language of the data entered in this field
+     */
+    public $language = null;
 
     /**
      * Renders field input
@@ -94,9 +100,17 @@ abstract class Field extends Object
             if(!isset($attribute['class'])) {
                 $attribute['class'] = TextInput::className();
             }
-            return $array;
+            return $attribute;
         }
         throw new InvalidConfigException('The attribute must be specified in the format of "attribute", "attribute:type" or as an array');
+    }
+    
+    /**
+     * Validate value
+     * @return boolean
+     */
+    public function validate(){
+        return true;
     }
 
 }
