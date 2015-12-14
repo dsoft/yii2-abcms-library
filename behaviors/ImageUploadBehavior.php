@@ -9,7 +9,7 @@ use yii\db\BaseActiveRecord;
 use yii\web\UploadedFile;
 use yii\helpers\FileHelper;
 use yii\base\ErrorException;
-use yii\imagine\Image;
+use abcms\library\helpers\Image;
 use yii\helpers\StringHelper;
 
 class ImageUploadBehavior extends Behavior
@@ -116,10 +116,17 @@ class ImageUploadBehavior extends Behavior
         }
         $sizes = (array) $this->sizes;
         foreach($sizes as $name => $size) {
-            if(isset($size['width'], $size['height'])) {
+            if(isset($size['width']) || isset($size['height'])) {
                 $folderName = $mainFolder.$name.'/';
                 if(FileHelper::createDirectory($folderName)) {
-                    Image::thumbnail($mainFolder.$imageName, $size['width'], $size['height'])->save($folderName.$imageName, $options);
+                    $width = (isset($size['width'])) ? $size['width'] : 0;
+                    $height = (isset($size['height'])) ? $size['height'] : 0;
+                    if(!$width || !$height) {
+                        Image::resize($mainFolder.$imageName, $width, $height)->save($folderName.$imageName, $options);
+                    }
+                    else {
+                        Image::thumbnail($mainFolder.$imageName, $width, $height)->save($folderName.$imageName, $options);
+                    }
                 }
                 else {
                     throw new ErrorException('Unable to create directoy.');

@@ -16,6 +16,7 @@ class SeoBehavior extends \yii\base\Behavior
     public $titlePrefix = '';
     public $titlePrefixSeparator = ' - ';
     public $titleSuffix = true;
+    public $titleSuffixSeparator = ' | ';
 
     /**
      * @inheritdoc
@@ -45,27 +46,47 @@ class SeoBehavior extends \yii\base\Behavior
     {
         return $this->owner->{$this->titleAttribute};
     }
-
-    public function getDescription()
-    {
+    
+    public function getDescription(){
         return $this->owner->{$this->descriptionAttribute};
     }
 
-    public function frontUrl($params = [])
+    public function getDescriptionText()
+    {
+        return strip_tags($this->getDescription());
+    }
+
+    public function frontUrl($params = [], $scheme = false)
     {
         $params[0] = $this->route;
         $params['id'] = $this->id;
         $params['urlTitle'] = $this->urlTitle;
-        return \yii\helpers\Url::to($params);
+        return \yii\helpers\Url::to($params, $scheme);
+    }
+    
+    public function getFrontUrl(){
+        return $this->frontUrl();
     }
 
     public function tags()
     {
+        $this->registerTags();
+    }
+
+    public function registerTags()
+    {
         $view = Yii::$app->view;
-        $view->title = $this->getMetaTitle();
-        if($this->descriptionAttribute) {
-            $view->registerMetaTag(['name' => 'description', 'content' => $this->getMetaDescription()], 'description');
+        $title = $this->getMetaTitle();
+        $view->title = $title;
+        $view->registerMetaTag(['property' => 'og:title', 'content' => $title], 'og:title');
+        if($this->descriptionAttribute && $this->getDescriptionText()) {
+            $description = $this->getMetaDescription();
+            $view->registerMetaTag(['name' => 'description', 'content' => $description], 'description');
+            $view->registerMetaTag(['property' => 'og:description', 'content' => $description], 'og:description');
         }
+        $url = $this->frontUrl([], true);
+        $view->registerLinkTag(['rel'=>'canonical', 'href'=>$url], 'canonical');
+        $view->registerMetaTag(['property' => 'og:url', 'content' => $url], 'og:url');
     }
 
     public function getMetaTitle()
@@ -75,7 +96,7 @@ class SeoBehavior extends \yii\base\Behavior
             $title = $this->titlePrefix.$this->titlePrefixSeparator.$title;
         }
         if($this->titleSuffix) {
-            $title .= ' - '.Yii::$app->name;
+            $title .= $this->titleSuffixSeparator.Yii::$app->name;
         }
         $title = strip_tags($title);
         return $title;
@@ -83,21 +104,8 @@ class SeoBehavior extends \yii\base\Behavior
 
     public function getMetaDescription()
     {
-        $description = StringHelper::truncateWords(strip_tags($this->getDescription()), 25);
+        $description = StringHelper::truncateWords($this->getDescriptionText(), 25);
         return $description;
-    }
-
-    /**
-     * Check if website is multi language
-     * @return boolean
-     */
-    public function isMultiLanguage()
-    {
-        $result = false;
-        if(isset(Yii::$app->params['seo']['isMultiLanguage'])) {
-            $result = Yii::$app->params['seo']['isMultiLanguage'];
-        }
-        return $result;
     }
 
 }
