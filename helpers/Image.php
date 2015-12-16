@@ -8,6 +8,9 @@ use Imagine\Image\ManipulatorInterface;
 use Imagine\Image\Box;
 use Imagine\Image\Color;
 use Imagine\Image\Point;
+use yii\helpers\StringHelper;
+use yii\helpers\FileHelper;
+use yii\base\ErrorException;
 
 /**
  * Image implements most commonly used image manipulation functions using the [Imagine library](http://imagine.readthedocs.org/).
@@ -73,22 +76,62 @@ class Image extends BaseImage
      * @param integer $height the height in pixels to create the thumbnail
      * @return ImageInterface
      */
-    public static function resize($filename, $width, $height=null)
+    public static function resize($filename, $width, $height = null)
     {
         $img = static::getImagine()->open(Yii::getAlias($filename));
-        
+
 
         if(!$width && !$height) {
             return $img->copy();
         }
         $originalSize = $img->getSize();
-        if($width && !$height){
+        if($width && !$height) {
             $height = $width * $originalSize->getHeight() / $originalSize->getWidth();
         }
-        if($height && !$width){
+        if($height && !$width) {
             $width = $height * $originalSize->getWidth() / $originalSize->getHeight();
         }
         return $img->copy()->resize(new Box($width, $height));
+    }
+
+    /**
+     * Take one image path and save multiple sizes for it, create directories of new sizes if necessary
+     * @param string $folderPath
+     * @param string $imageName
+     * @param array $sizes The sizes of the image that should be saved, array should contain the name of the size as key, used also as folder name,
+     * and an array as value containing width, height or both.
+     * @throws ErrorException
+     */
+    public static function saveSizes($folderPath, $imageName, $sizes)
+    {
+        $imagePath = $folderPath.$imageName;
+        /**
+         * @var array Image saving options
+         */
+        $options = array();
+        if(StringHelper::endsWith($imageName, 'jpg', false) || StringHelper::endsWith($imageName, 'jpeg', false)) {
+            // Keep good quality if image is jpeg
+            $options = array('quality' => 95);
+        }
+        foreach($sizes as $name => $size) {
+            if(isset($size['width']) || isset($size['height'])) {
+                $folderName = $folderPath.$name.'/';
+                $newImagePath = $folderName.$imageName;
+                if(FileHelper::createDirectory($folderName)) {
+                    $width = (isset($size['width'])) ? $size['width'] : 0;
+                    $height = (isset($size['height'])) ? $size['height'] : 0;
+                    if(!$width || !$height) {
+                        Image::resize($imagePath, $width, $height)->save($newImagePath, $options);
+                    }
+                    else {
+                        Image::thumbnail($imagePath, $width, $height)->save($newImagePath, $options);
+                    }
+                }
+                else {
+                    throw new ErrorException('Unable to create directoy.');
+                }
+            }
+        }
     }
 
 }
