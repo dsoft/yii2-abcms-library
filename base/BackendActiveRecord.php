@@ -11,7 +11,6 @@ class BackendActiveRecord extends ActiveRecord
 {
 
     public static $enableTime = true;
-    public static $enableOrdering = true;
     public static $enableDeleted = true;
 
     public function behaviors()
@@ -34,7 +33,6 @@ class BackendActiveRecord extends ActiveRecord
     {
         $tableName = static::tableName();
         return new BackendActiveQuery(get_called_class(), [
-            'enableOrdering' => static::$enableOrdering,
             'enableDeleted' => static::$enableDeleted,
             'tableName'=>$tableName,
         ]);
