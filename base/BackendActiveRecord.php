@@ -3,32 +3,22 @@
 namespace abcms\library\base;
 
 use yii\db\ActiveRecord;
-use yii\behaviors\TimestampBehavior;
-use yii\db\Expression;
 use yii\web\NotFoundHttpException;
 
+/**
+ * BackendActiveRecord is the base class for models that contains common backend features: soft delete, activate/deactivate...
+ */
 class BackendActiveRecord extends ActiveRecord
 {
-
-    public static $enableTime = true;
+    /**
+     * @var boolean true if soft removal is enabled and deleted attribute available
+     */
     public static $enableDeleted = true;
 
-    public function behaviors()
-    {
-        $array = [];
-        if(static::$enableTime) {
-            $array[] = [
-                'class' => TimestampBehavior::className(),
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['time'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['time'],
-                ],
-                'value' => new Expression('NOW()'),
-            ];
-        }
-        return $array;
-    }
-
+    /**
+     * @inheritdoc
+     * @return \abcms\library\base\BackendActiveQuery
+     */
     public static function find()
     {
         $tableName = static::tableName();
@@ -53,6 +43,10 @@ class BackendActiveRecord extends ActiveRecord
         return $this;
     }
 
+    /**
+     * Overwrites delete function to execute soft removal if [[enableDeleted]] is true
+     * @return boolean
+     */
     public function delete()
     {
         if(self::$enableDeleted) {
@@ -70,6 +64,14 @@ class BackendActiveRecord extends ActiveRecord
         }
     }
 
+    /**
+     * Finds the model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @param boolean $active if we should find active models only
+     * @return BackendActiveRecord the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
     public static function findModel($id, $active = true)
     {
         $className = self::className();
