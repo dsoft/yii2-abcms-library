@@ -11,6 +11,10 @@
     "require": {
         "yiisoft/yii2": "*"
     },
+    "suggest": {
+        "yiisoft/yii2-imagine": "to use the Image helper",
+        "vova07/yii2-imperavi-widget": "to use the TextEditor field class"
+    },
     "autoload": {
         "psr-4": {"abcms\\library\\": ""}
     },
