@@ -17,7 +17,7 @@ use yii\db\Expression;
  * public function behaviors()
  * {
  *     return [
- *         TimestampBehavior::className(),
+ *         TimeBehavior::className(),
  *     ];
  * }
  * ```
