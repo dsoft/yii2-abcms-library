@@ -9,7 +9,7 @@ use yii\base\Event;
 use yii\helpers\HtmlPurifier;
 
 /**
- * PurifyBehavior automatically purify the specified attribute before saving
+ * PurifyBehavior automatically purify the specified attribute, or safe attributes if none provided, before saving.
  *
  * To use it, insert the following code to your ActiveRecord class:
  * 
@@ -33,7 +33,7 @@ class PurifyBehavior extends Behavior
 {
 
     /**
-     * @var array Array of attributes that should be purified before save
+     * @var array Array of attributes that should be purified before save, keep empty to purify all safe attributes.
      */
     public $attributes = [];
 
@@ -65,7 +65,12 @@ class PurifyBehavior extends Behavior
      */
     public function purifyAttributes($event)
     {
-        $attributes = $this->attributes;
+        if($this->attributes){
+            $attributes = $this->attributes;
+        }
+        else{
+            $attributes = $this->owner->safeAttributes();
+        }
         foreach($attributes as $attribute) {
             if(is_string($attribute)) {
                 $this->owner->$attribute = HtmlPurifier::process($this->owner->$attribute);

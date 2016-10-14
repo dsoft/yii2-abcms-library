@@ -89,6 +89,17 @@ class BackendActiveRecord extends ActiveRecord
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
+    
+    /**
+     * Find and return translated model
+     * @param integer $id
+     * @param boolean $active
+     * @return BackendActiveRecord
+     */
+    public static function findTranslatedModel($id, $active = true){
+        $model = self::findModel($id, $active);
+        return $model->translate();
+    }
 
     /**
      * Return the models that should be used in the frontend.
