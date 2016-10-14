@@ -4,12 +4,15 @@ namespace abcms\library\base;
 
 use yii\db\ActiveRecord;
 use yii\web\NotFoundHttpException;
+use abcms\multilanguage\Multilanguage;
+use abcms\multilanguage\ActiveDataProvider;
 
 /**
  * BackendActiveRecord is the base class for models that contains common backend features: soft delete, activate/deactivate...
  */
 class BackendActiveRecord extends ActiveRecord
 {
+
     /**
      * @var boolean true if soft removal is enabled and deleted attribute available
      */
@@ -24,7 +27,7 @@ class BackendActiveRecord extends ActiveRecord
         $tableName = static::tableName();
         return new BackendActiveQuery(get_called_class(), [
             'enableDeleted' => static::$enableDeleted,
-            'tableName'=>$tableName,
+            'tableName' => $tableName,
         ]);
     }
 
@@ -85,6 +88,60 @@ class BackendActiveRecord extends ActiveRecord
         else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+    }
+
+    /**
+     * Return the models that should be used in the frontend.
+     * @param array $where
+     * @param boolean $ordering
+     * @param boolean $onlyTranslatedModels if false return all models even if not transled to the current language
+     * @return BackendActiveRecord[]
+     */
+    public static function getFrontendModels($where = [], $ordering = true, $onlyTranslatedModels = true)
+    {
+        $query = self::getFrontendQuery($where, $ordering);
+        $models = Multilanguage::translateMultiple($query->all(), NULL, $onlyTranslatedModels);
+        return $models;
+    }
+
+    /**
+     * Return data provider that should be used in the frontend.
+     * @param integer $pageSize
+     * @param array $where
+     * @param boolean $ordering
+     * @return \app\models\ActiveDataProvider
+     */
+    public static function getFrontendDataProvider($pageSize = 8, $where = [], $ordering = true)
+    {
+        $query = self::getFrontendQuery($where, $ordering);
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => $pageSize,
+            ],
+        ]);
+        return $dataProvider;
+    }
+    
+    /**
+     * Return frontend query
+     * @param array $where additioinal where array added to query
+     * @param boolean $ordering if ordering field is enabled
+     * @return BackendActiveQuery
+     */
+    public static function getFrontendQuery($where = [], $ordering = true)
+    {
+        $query = self::find()->active();
+        if($ordering) {
+            $query->orderBy('ordering ASC, id DESC');
+        }
+        else {
+            $query->orderBy('id DESC');
+        }
+        if($where) {
+            $query->andWhere($where);
+        }
+        return $query;
     }
 
 }
