@@ -3,110 +3,85 @@
 namespace abcms\library\behaviors;
 
 use Yii;
-use yii\base\Behavior;
-use yii\validators\Validator;
-use yii\db\BaseActiveRecord;
-use yii\web\UploadedFile;
 use yii\helpers\FileHelper;
 use yii\base\ErrorException;
 use abcms\library\helpers\Image;
 use yii\helpers\StringHelper;
 
-class ImageUploadBehavior extends Behavior
+/**
+ * ImageUploadBehavior automatically validate, upload and resize the available image for a certain attribute.
+ *
+ * To use it, insert the following code to your ActiveRecord class:
+ *
+ * ```php
+ * use abcms\library\behaviors\ImageUploadBehavior;
+ *
+ * public function behaviors()
+ * {
+ *     return [
+ *          [
+ *              'class' => ImageUploadBehavior::className(),
+ *              'attribute' => 'image',
+ *              'sizes' => [
+ *                  'small' => [
+ *                      'width' => 340,
+ *                      'height' => 300,
+ *                  ]
+ *              ],
+ *          ],
+ *     ];
+ * }
+ * ```
+ */
+class ImageUploadBehavior extends FileUploadBehavior
 {
 
-    public $attribute = null;
+    /**
+     * Additional images sizes.
+     * ```php
+     * 'sizes' => [
+     *              'small' => [
+     *                  'width' => 200,
+     *                  'height' => 300,
+     *              ],
+     *              'medium' => [
+     *                  'width' => 600,
+     *              ],
+     *          ],
+     * ```
+     * @var array
+     */
     public $sizes = [];
-    public $required = true;
-    public $requiredOn = 'create';
     
     /**
-     *
-     * @var boolean Whether to check file type (extension) with mime-type on validation.
+     * @inheritdoc
      */
-    public $checkExtensionByMimeType = true;
+    public $extensions = 'png, jpg';
+    
+    /**
+     * @inheritdoc
+     */
+    protected $validatorType = 'image';
+    
+    /**
+     * @inheritdoc
+     * Image required on create scenario only.
+     * This is the most used case in the admin panel.
+     */
+    public $requiredOn = 'create';
 
     /**
      * @inheritdoc
      */
-    public function init()
-    {
-        parent::init();
-        if(!$this->attribute) {
-            throw new InvalidConfigException('"attribute" property must be set.');
-        }
+    protected function afterFileSave($directory, $fileName){
+        $this->saveSizes($directory, $fileName);
     }
-
+    
     /**
-     * @inheritdocs
+     * Save additional images sizes.
+     * @param string $mainFolder
+     * @param string $imageName
      */
-    public function attach($owner)
-    {
-        parent::attach($owner);
-        $attribute = $this->attribute;
-        $validators = $owner->getValidators();
-        $imageValidator = Validator::createValidator('image', $owner, $attribute, ['extensions' => 'png, jpg', 'checkExtensionByMimeType'=>$this->checkExtensionByMimeType]);
-        $validators->append($imageValidator);
-        if($this->required) {
-            $options = [];
-            if($this->requiredOn) {
-                $options['on'] = $this->requiredOn;
-            }
-            $requiredValidator = Validator::createValidator('required', $owner, $attribute, $options);
-            $validators->append($requiredValidator);
-        }
-    }
-
-    /**
-     * @inheritdocs
-     */
-    public function events()
-    {
-        return [
-            BaseActiveRecord::EVENT_BEFORE_VALIDATE => 'beforeValidate',
-            BaseActiveRecord::EVENT_AFTER_VALIDATE => 'afterValidate',
-        ];
-    }
-
-    public function beforeValidate()
-    {
-        $owner = $this->owner;
-        $attribute = $this->attribute;
-        if($owner->isAttributeChanged($attribute)) {
-            $file = UploadedFile::getInstance($owner, $attribute);
-            if(!$file) { // to disable overwriting saved image on update if there's no new image
-                $owner->setAttribute($attribute, $owner->getOldAttribute($attribute));
-            }
-            else {
-                $owner->setAttribute($attribute, $file);
-            }
-        }
-    }
-
-    public function afterValidate()
-    {
-        $owner = $this->owner;
-        $attribute = $this->attribute;
-        if(!$owner->hasErrors()) {
-            $file = UploadedFile::getInstance($owner, $attribute);
-            if($file) {
-                $fileName = $this->returnImageName();
-                $folderName = $this->returnFolderName();
-                $randomName = $fileName."_".time().mt_rand(10, 99).".".$file->extension;
-                $directory = Yii::getAlias('@webroot/uploads/'.$folderName.'/');
-                if(FileHelper::createDirectory($directory)) {
-                    $mainImagePath = $directory.$randomName;
-                    $file->saveAs($mainImagePath);
-                    $owner->setAttribute($attribute, $randomName);
-                    $this->saveSizes($directory, $randomName);
-                }
-                else {
-                    throw new ErrorException('Unable to create directoy.');
-                }
-            }
-        }
-    }
-
     protected function saveSizes($mainFolder, $imageName)
     {
         $options = array();
@@ -135,24 +110,12 @@ class ImageUploadBehavior extends Behavior
         }
     }
 
-    protected function returnImageName()
-    {
-        return $this->returnShortName();
-    }
-
-    protected function returnFolderName()
-    {
-        return $this->returnShortName();
-    }
-
-    protected function returnShortName()
-    {
-        $owner = $this->owner;
-        $class = new \ReflectionClass($owner);
-        $name = strtolower($class->getShortName());
-        return $name;
-    }
-
+    /**
+     * Returns the image link.
+     * @param string $attribute
+     * @param string $size
+     * @return string
+     */
     public function returnImageLink($attribute = null, $size = null)
     {
         $owner = $this->owner;
