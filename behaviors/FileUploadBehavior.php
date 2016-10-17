@@ -39,27 +39,27 @@ class FileUploadBehavior extends Behavior
      * @var string File attribute name
      */
     public $attribute = null;
-    
+
     /**
      * @var boolean If file is required
      */
     public $required = true;
-    
+
     /**
      * @var string|null On which scenario the file field is required.
      */
     public $requiredOn = null;
-    
+
     /**
      * @var string List of allowed extensions.
      */
     public $extensions = '';
-    
+
     /**
      * @var boolean Whether to check file type (extension) with mime-type on validation.
      */
     public $checkExtensionByMimeType = true;
-    
+
     /**
      * @var string Validator type
      */
@@ -88,7 +88,7 @@ class FileUploadBehavior extends Behavior
         $attribute = $this->attribute;
         $validators = $owner->getValidators();
         $extensions = $this->extensions;
-        $fileValidator = Validator::createValidator($this->validatorType, $owner, $attribute, ['extensions' => $extensions, 'checkExtensionByMimeType'=>$this->checkExtensionByMimeType]);
+        $fileValidator = Validator::createValidator($this->validatorType, $owner, $attribute, ['extensions' => $extensions, 'checkExtensionByMimeType' => $this->checkExtensionByMimeType]);
         $validators->append($fileValidator);
         if($this->required) {
             $options = [];
@@ -119,14 +119,14 @@ class FileUploadBehavior extends Behavior
     {
         $owner = $this->owner;
         $attribute = $this->attribute;
-        if($owner->isAttributeChanged($attribute)) {
-            $file = UploadedFile::getInstance($owner, $attribute);
-            if(!$file) { // to disable overwriting saved file on update if there's no new file
-                $owner->setAttribute($attribute, $owner->getOldAttribute($attribute));
+        $file = UploadedFile::getInstance($owner, $attribute);
+        if(!$file) {
+            if($owner->isAttributeChanged($attribute)){ // to disable overwriting saved file on update if there's no new file
+                 $owner->setAttribute($attribute, $owner->getOldAttribute($attribute));
             }
-            else {
-                $owner->setAttribute($attribute, $file);
-            }
+        }
+        else {
+            $owner->setAttribute($attribute, $file);
         }
     }
 
@@ -156,13 +156,14 @@ class FileUploadBehavior extends Behavior
             }
         }
     }
-    
+
     /**
      * Function called after saving the files, can be overwritten in children classes
      * @param string $directory
      * @param string $fileName
      */
-    protected function afterFileSave($directory, $fileName){
+    protected function afterFileSave($directory, $fileName)
+    {
         
     }
 
@@ -207,13 +208,13 @@ class FileUploadBehavior extends Behavior
     {
         $owner = $this->owner;
         $folderName = $this->returnFolderName();
-        if(!$attribute){
+        if(!$attribute) {
             $attribute = $this->attribute;
         }
         $fileName = $owner->getAttribute($attribute);
         $return = null;
-        if($fileName){
-            $return =  Yii::getAlias('@web/uploads/'.$folderName.'/'.$fileName);
+        if($fileName) {
+            $return = Yii::getAlias('@web/uploads/'.$folderName.'/'.$fileName);
         }
         return $return;
     }
