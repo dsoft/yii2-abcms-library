@@ -61,6 +61,11 @@ class FileUploadBehavior extends Behavior
     public $checkExtensionByMimeType = true;
 
     /**
+     * @var boolean Whether to add validators on attach.
+     */
+    public $addValidators = true;
+
+    /**
      * @var string Validator type
      */
     protected $validatorType = 'file';
@@ -85,18 +90,20 @@ class FileUploadBehavior extends Behavior
     public function attach($owner)
     {
         parent::attach($owner);
-        $attribute = $this->attribute;
-        $validators = $owner->getValidators();
-        $extensions = $this->extensions;
-        $fileValidator = Validator::createValidator($this->validatorType, $owner, $attribute, ['extensions' => $extensions, 'checkExtensionByMimeType' => $this->checkExtensionByMimeType]);
-        $validators->append($fileValidator);
-        if($this->required) {
-            $options = [];
-            if($this->requiredOn) {
-                $options['on'] = $this->requiredOn;
+        if($this->addValidators) {
+            $attribute = $this->attribute;
+            $validators = $owner->getValidators();
+            $extensions = $this->extensions;
+            $fileValidator = Validator::createValidator($this->validatorType, $owner, $attribute, ['extensions' => $extensions, 'checkExtensionByMimeType' => $this->checkExtensionByMimeType]);
+            $validators->append($fileValidator);
+            if($this->required) {
+                $options = [];
+                if($this->requiredOn) {
+                    $options['on'] = $this->requiredOn;
+                }
+                $requiredValidator = Validator::createValidator('required', $owner, $attribute, $options);
+                $validators->append($requiredValidator);
             }
-            $requiredValidator = Validator::createValidator('required', $owner, $attribute, $options);
-            $validators->append($requiredValidator);
         }
     }
 
@@ -121,8 +128,8 @@ class FileUploadBehavior extends Behavior
         $attribute = $this->attribute;
         $file = UploadedFile::getInstance($owner, $attribute);
         if(!$file) {
-            if($owner->isAttributeChanged($attribute)){ // to disable overwriting saved file on update if there's no new file
-                 $owner->setAttribute($attribute, $owner->getOldAttribute($attribute));
+            if($owner->isAttributeChanged($attribute)) { // to disable overwriting saved file on update if there's no new file
+                $owner->setAttribute($attribute, $owner->getOldAttribute($attribute));
             }
         }
         else {
