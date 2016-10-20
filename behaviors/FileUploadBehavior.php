@@ -66,6 +66,16 @@ class FileUploadBehavior extends Behavior
     public $addValidators = true;
 
     /**
+     * @var string Uploading path prefix, aliases can be used.
+     */
+    public $pathPrefix = '@webroot/uploads/';
+
+    /**
+     * @var string Uploaded file link prefix, aliases can be used.
+     */
+    public $linkPrefix = '@web/uploads/';
+
+    /**
      * @var string Validator type
      */
     protected $validatorType = 'file';
@@ -150,7 +160,7 @@ class FileUploadBehavior extends Behavior
             if($file) {
                 $fileName = $this->returnNewFileName().".".$file->extension;
                 $folderName = $this->returnFolderName();
-                $directory = Yii::getAlias('@webroot/uploads/'.$folderName.'/');
+                $directory = Yii::getAlias($this->pathPrefix.$folderName.'/');
                 if(FileHelper::createDirectory($directory)) {
                     $mainFilePath = $directory.$fileName;
                     $file->saveAs($mainFilePath);
@@ -221,9 +231,25 @@ class FileUploadBehavior extends Behavior
         $fileName = $owner->getAttribute($attribute);
         $return = null;
         if($fileName) {
-            $return = Yii::getAlias('@web/uploads/'.$folderName.'/'.$fileName);
+            $return = Yii::getAlias($this->linkPrefix.$folderName.'/'.$fileName);
         }
         return $return;
+    }
+
+    /**
+     * Return the file path
+     * @param string $attribute
+     * @return string
+     */
+    public function returnFilePath($attribute = null)
+    {
+        $folderName = $this->returnFolderName();
+        if(!$attribute) {
+            $attribute = $this->attribute;
+        }
+        $fileName = $this->owner->getAttribute($attribute);
+        $path = Yii::getAlias($this->pathPrefix.$folderName).'/'.$fileName;
+        return $path;
     }
 
 }
