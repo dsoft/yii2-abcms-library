@@ -251,5 +251,16 @@ class FileUploadBehavior extends Behavior
         $path = Yii::getAlias($this->pathPrefix.$folderName).'/'.$fileName;
         return $path;
     }
+    
+    /**
+     * Deletes the file.
+     * @param string $attribute
+     * @return string
+     */
+    public function deleteFile($attribute = null)
+    {
+        $path = $this->returnFilePath($attribute);
+        return unlink($path);
+    }
 
 }
