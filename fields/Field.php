@@ -3,37 +3,30 @@
 namespace abcms\library\fields;
 
 use yii\base\Object;
-use yii\helpers\Inflector;
+use yii\helpers\Html;
 
 /**
  * Field is the base class of all Dynamic Fields/Input classes.
  */
 abstract class Field extends Object
 {
+    
+    /**
+     * Name attribute of the input
+     * @var string
+     */
+    public $inputName;
 
     /**
      * Value of the field
      * @var string
      */
     public $value;
-
+    
     /**
-     * Model that this field belongs to
-     * @var \yii\base\Model
+     * @var string Title of the field
      */
-    public $model;
-
-    /**
-     * Field attribute name
-     * @var string
-     */
-    public $attribute;
-
-    /**
-     * @var string
-     * Will be used as input name property
-     */
-    public $attributeExpression;
+    public $label;
 
     /**
      * @var array
@@ -41,11 +34,6 @@ abstract class Field extends Object
      */
     public $inputOptions = ['class' => 'form-control'];
     
-    /**
-     * @var string
-     * Language of the data entered in this field
-     */
-    public $language = null;
 
     /**
      * Renders field input
@@ -60,6 +48,27 @@ abstract class Field extends Object
     {
         return $this->value;
     }
+    
+    /**
+     * Render the form input label
+     */
+    public function renderLabel()
+    {
+        return Html::label($this->label, $this->inputName);
+    }
+    
+    /**
+     * Renders the full field: container, input and label
+     * @return string
+     */
+    public function renderField()
+    {
+        $html = Html::beginTag('div', ['class'=>'form-group']);
+        $html .= $this->renderLabel();
+        $html .= $this->renderInput();
+        $html .= Html::endTag('div');
+        return $html;
+    }
 
     /**
      * Return the array that should be used inside in the Detail View Widget 'attributes' property
@@ -68,41 +77,10 @@ abstract class Field extends Object
     public function detailViewAttribute()
     {
         $array = [
-            'attribute' => $this->attribute,
+            'label' => $this->label,
             'value'=> $this->renderValue(),
         ];
         return $array;
-    }
-
-    /**
-     * Receive string or array and transform it to an array that can be used to call Yii::createObject() to create a Field class
-     * The attribute must be specified in the format of "attribute", "attribute:type" or as an array.
-     * Type in "attribute:type" represents the classname as Id, like: text-input, text-area...
-     * If a field is of class [[TextInput]], the "class" element can be omitted.
-     * @param string $attribute
-     * @return array
-     * @throws InvalidConfigException
-     */
-    public static function normalizeObject($attribute)
-    {
-        if(is_string($attribute)) {
-            if(!preg_match('/^([^:]+)(:(.*))?$/', $attribute, $matches)) {
-                throw new InvalidConfigException('The attribute must be specified in the format of "attribute", "attribute:type"');
-            }
-            $class = isset($matches[3]) ? '\abcms\library\fields\\'.Inflector::id2camel($matches[3]) : TextInput::className();
-            $array = [
-                'class' => $class,
-                'attribute' => $matches[1],
-            ];
-            return $array;
-        }
-        if(is_array($attribute)) {
-            if(!isset($attribute['class'])) {
-                $attribute['class'] = TextInput::className();
-            }
-            return $attribute;
-        }
-        throw new InvalidConfigException('The attribute must be specified in the format of "attribute", "attribute:type" or as an array');
     }
     
     /**

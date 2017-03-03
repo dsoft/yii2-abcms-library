@@ -2,7 +2,6 @@
 
 namespace abcms\library\fields;
 
-use yii\helpers\Html;
 
 /**
  * Text Input Field
@@ -24,13 +23,9 @@ class TextEditor extends Field
      */
     public function renderInput()
     {
-        $attr = Html::getInputName($this->model, $this->attributeExpression);
         $settings = $this->settings;
-        if($this->language == 'ar') {
-            $settings['direction'] = 'rtl';
-        }
         return \vova07\imperavi\Widget::widget([
-                    'name' => $attr,
+                    'name' => $this->inputName,
                     'value' => $this->value,
                     'settings' => $settings,
         ]);
@@ -42,7 +37,7 @@ class TextEditor extends Field
     public function detailViewAttribute()
     {
         $array = [
-            'attribute' => $this->attribute,
+            'label' => $this->label,
             'value' => $this->renderValue(),
             'format' => 'html',
         ];

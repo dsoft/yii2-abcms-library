@@ -20,7 +20,7 @@ class TextArea extends Field
      */
     public function renderInput()
     {
-        return Html::activeTextarea($this->model, $this->attributeExpression, $this->inputOptions);
+        return Html::textarea($this->inputName, $this->value, $this->inputOptions);
     }
 
     /**
@@ -29,7 +29,7 @@ class TextArea extends Field
     public function detailViewAttribute()
     {
         $array = [
-            'attribute' => $this->attribute,
+            'label' => $this->label,
             'value' => $this->renderValue(),
             'format'=> 'ntext',
         ];
