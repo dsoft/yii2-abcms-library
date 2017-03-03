@@ -31,6 +31,7 @@ class File extends Field
     public function renderInput()
     {
         $html = Html::fileInput($this->inputName, $this->value, $this->inputOptions);
+        $html .= Html::hiddenInput($this->inputName, '', ['id' => null]);
         if($this->value) {
             $html .= Html::a($this->value, $this->getFileLink(), ['target' => '_blank']);
             $html .= '<br />';
@@ -46,6 +47,7 @@ class File extends Field
         $validator = new FileValidator;
         $validator->extensions = $this->extensions;
         $file = UploadedFile::getInstanceByName($this->inputName);
+
         if($validator->validate($file)) {
             if($file) {
                 $fileName = $this->returnFileName();
