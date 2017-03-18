@@ -37,6 +37,9 @@
             container.find('input').each(function () {
                 form.append($(this).clone());
             });
+            container.find('select').each(function () {
+                form.append($('<input/>', {name: $(this).attr('name'), value: $(this).val(), type: 'hidden'}));
+            });
             var csrfParam = yii.getCsrfParam();
             if (csrfParam) {
                 form.append($('<input/>', {name: csrfParam, value: yii.getCsrfToken(), type: 'hidden'}));
