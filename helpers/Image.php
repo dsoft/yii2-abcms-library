@@ -49,8 +49,11 @@ class Image extends BaseImage
 
         $img = $img->thumbnail($box, $mode);
 
+        $palette = new \Imagine\Image\Palette\RGB();
+        $color = $palette->color(static::$thumbnailBackgroundColor, static::$thumbnailBackgroundAlpha);
+        
         // create empty image to preserve aspect ratio of thumbnail
-        $thumb = static::getImagine()->create($box, new Color('FFF', 100));
+        $thumb = static::getImagine()->create($box, $color);
 
         // calculate points
         $size = $img->getSize();
