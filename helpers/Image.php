@@ -79,7 +79,7 @@ class Image extends BaseImage
      * @param integer $height the height in pixels to create the thumbnail
      * @return ImageInterface
      */
-    public static function resize($filename, $width, $height = null)
+    public static function resize($filename, $width, $height = null, $keepAspectRatio = true, $allowUpscaling = false)
     {
         $img = static::getImagine()->open(Yii::getAlias($filename));
 
