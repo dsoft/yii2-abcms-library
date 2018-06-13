@@ -7,6 +7,7 @@ use yii\helpers\FileHelper;
 use yii\base\ErrorException;
 use abcms\library\helpers\Image;
 use yii\helpers\StringHelper;
+use yii\helpers\Url;
 
 /**
  * ImageUploadBehavior automatically validate, upload and resize the available image for a certain attribute.
@@ -114,22 +115,23 @@ class ImageUploadBehavior extends FileUploadBehavior
      * Returns the image link.
      * @param string $attribute
      * @param string $size
+     * @param bool|string $scheme the URI scheme to use in the returned base URL
      * @return string
      */
-    public function returnImageLink($attribute = null, $size = null)
+    public function returnImageLink($attribute = null, $size = null, $scheme = false)
     {
         $owner = $this->owner;
         $folderName = $this->returnFolderName();
-        if($size) {
+        if ($size) {
             $folderName .= "/$size";
         }
-        if(!$attribute) {
+        if (!$attribute) {
             $attribute = $this->attribute;
         }
         $imageName = $owner->getAttribute($attribute);
         $return = null;
-        if($imageName) {
-            $return = Yii::getAlias('@web/uploads/'.$folderName.'/'.$imageName);
+        if ($imageName) {
+            $return = Url::base($scheme) . '/uploads/' . $folderName . '/' . $imageName;
         }
         return $return;
     }
