@@ -79,6 +79,12 @@ class FileUploadBehavior extends Behavior
      * @var string Validator type
      */
     protected $validatorType = 'file';
+    
+    /**
+     *
+     * @var string|null Folder name or leave null to get the name from the class name
+     */
+    public $folderName = null;
 
     /**
      * @inheritdoc
@@ -201,7 +207,12 @@ class FileUploadBehavior extends Behavior
      */
     protected function returnFolderName()
     {
-        return $this->returnShortName();
+        if($this->folderName){
+            return $this->folderName;
+        }
+        else{
+            return $this->returnShortName();
+        }
     }
 
     /**
