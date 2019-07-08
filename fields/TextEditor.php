@@ -34,7 +34,7 @@ class TextEditor extends Field
     /**
      * @inheritdocs
      */
-    public function detailViewAttribute()
+    public function getDetailViewAttribute()
     {
         $array = [
             'label' => $this->label,

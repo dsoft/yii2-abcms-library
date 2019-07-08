@@ -74,7 +74,7 @@ abstract class Field extends Object
      * Return the array that should be used inside in the Detail View Widget 'attributes' property
      * @return array
      */
-    public function detailViewAttribute()
+    public function getDetailViewAttribute()
     {
         $array = [
             'label' => $this->label,

@@ -26,7 +26,7 @@ class TextArea extends Field
     /**
      * @inheritdocs
      */
-    public function detailViewAttribute()
+    public function getDetailViewAttribute()
     {
         $array = [
             'label' => $this->label,

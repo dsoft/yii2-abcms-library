@@ -5,7 +5,7 @@ namespace abcms\library\fields;
 use Yii;
 use yii\helpers\StringHelper;
 use yii\helpers\FileHelper;
-use abcms\library\helpers\Image;
+use abcms\library\helpers\Image as ImageHelper;
 use yii\helpers\Html;
 
 /**
@@ -78,10 +78,10 @@ class Image extends File
                     $width = (isset($size['width'])) ? $size['width'] : 0;
                     $height = (isset($size['height'])) ? $size['height'] : 0;
                     if(!$width || !$height) {
-                        Image::resize($mainFolder.$imageName, $width, $height)->save($folderName.$imageName, $options);
+                        ImageHelper::resize($mainFolder.$imageName, $width, $height)->save($folderName.$imageName, $options);
                     }
                     else {
-                        Image::thumbnail($mainFolder.$imageName, $width, $height)->save($folderName.$imageName, $options);
+                        ImageHelper::thumbnail($mainFolder.$imageName, $width, $height)->save($folderName.$imageName, $options);
                     }
                 }
                 else {
@@ -94,7 +94,7 @@ class Image extends File
     /**
      * @inherit
      */
-    public function detailViewAttribute()
+    public function getDetailViewAttribute()
     {
         $link = $this->getFileLink();
         if(!$link) {

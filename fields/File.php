@@ -102,7 +102,7 @@ class File extends Field
     /**
      * @inherit
      */
-    public function detailViewAttribute()
+    public function getDetailViewAttribute()
     {
         $link = Html::encode($this->getFileLink());
         if(!$link) {
