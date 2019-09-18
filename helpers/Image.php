@@ -50,7 +50,7 @@ class Image extends BaseImage
         $img = $img->thumbnail($box, $mode);
 
         $palette = new \Imagine\Image\Palette\RGB();
-        $color = $palette->color(static::$thumbnailBackgroundColor, static::$thumbnailBackgroundAlpha);
+        $color = $palette->color(static::$thumbnailBackgroundColor, 0);
         
         // create empty image to preserve aspect ratio of thumbnail
         $thumb = static::getImagine()->create($box, $color);

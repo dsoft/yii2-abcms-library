@@ -52,7 +52,7 @@ class BackendActiveRecord extends ActiveRecord
      */
     public function delete()
     {
-        if(self::$enableDeleted) {
+        if(static::$enableDeleted) {
             if(!$this->beforeDelete()) {
                 return false;
             }
@@ -104,7 +104,7 @@ class BackendActiveRecord extends ActiveRecord
     /**
      * Return the models that should be used in the frontend.
      * @param array $where
-     * @param boolean $ordering
+     * @param boolean|array $ordering
      * @param boolean $onlyTranslatedModels if false return all models even if not transled to the current language
      * @return BackendActiveRecord[]
      */
@@ -137,18 +137,24 @@ class BackendActiveRecord extends ActiveRecord
     /**
      * Return frontend query
      * @param array $where additioinal where array added to query
-     * @param boolean $ordering if ordering field is enabled
+     * @param boolean|array $ordering if ordering field is enabled
      * @return BackendActiveQuery
      */
     public static function getFrontendQuery($where = [], $ordering = true)
     {
         $query = self::find()->active();
-        if($ordering) {
-            $query->orderBy('ordering ASC, id DESC');
+        if(is_array($ordering)){
+            $query->orderBy($ordering);
         }
-        else {
-            $query->orderBy('id DESC');
+        else{
+            if($ordering === true) {
+                $query->orderBy('ordering ASC, id DESC');
+            }
+            else {
+                $query->orderBy('id DESC');
+            }
         }
+        
         if($where) {
             $query->andWhere($where);
         }
