@@ -69,6 +69,16 @@ abstract class Field extends Object
         $html .= Html::endTag('div');
         return $html;
     }
+    
+    /**
+     * Returns the active field
+     * @param \yii\widgets\ActiveField $activeField ActiveField Object
+     * @return \yii\widgets\ActiveField|string
+     */
+    public function renderActiveField($activeField)
+    {
+        return $activeField;
+    }
 
     /**
      * Return the array that should be used inside in the Detail View Widget 'attributes' property
@@ -88,6 +98,24 @@ abstract class Field extends Object
      * @return boolean
      */
     public function validate(){
+        return true;
+    }
+    
+    /**
+     * Add custom validation rules to the provided model
+     * @param \yii\base\DynamicModel $model
+     */
+    public function addRulesToModel($model)
+    {
+        
+    }
+    
+    /**
+     * Return if field is safe for mass assignment
+     * @return boolean
+     */
+    public function isSafe()
+    {
         return true;
     }
 

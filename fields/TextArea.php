@@ -11,20 +11,30 @@ class TextArea extends Field
 {
 
     /**
-     * @inheritdocs
+     * {@inheritdoc}
      */
     public $inputOptions = ['class' => 'form-control', 'rows' => 6];
 
     /**
-     * Renders field input
+     * {@inheritdoc}
      */
     public function renderInput()
     {
         return Html::textarea($this->inputName, $this->value, $this->inputOptions);
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function renderActiveField($activeField)
+    {
+        $activeField = parent::renderActiveField($activeField);
+        $field = $activeField->textarea($this->inputOptions);
+        return $field;
+    }
 
     /**
-     * @inheritdocs
+     * {@inheritdoc}
      */
     public function getDetailViewAttribute()
     {

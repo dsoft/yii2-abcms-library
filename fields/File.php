@@ -38,6 +38,16 @@ class File extends Field
         }
         return $html;
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function renderActiveField($activeField)
+    {
+        $activeField = parent::renderActiveField($activeField);
+        $field = $activeField->fileInput();
+        return $field;
+    }
 
     /**
      * @inherit
