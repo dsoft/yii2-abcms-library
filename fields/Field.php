@@ -2,13 +2,13 @@
 
 namespace abcms\library\fields;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\helpers\Html;
 
 /**
  * Field is the base class of all Dynamic Fields/Input classes.
  */
-abstract class Field extends Object
+abstract class Field extends BaseObject
 {
     
     /**
@@ -27,7 +27,23 @@ abstract class Field extends Object
      * @var string Title of the field
      */
     public $label;
-
+    
+    /**
+     * @var string Hint for the field
+     */
+    public $hint;
+    
+    /**
+     * @var array List that can be used in drop down list and checkbox
+     */
+    public $list = [];
+    
+    /**
+     * Additional data used to configure each field type
+     * @var array
+     */
+    public $additionalData = [];
+    
     /**
      * @var array
      * The options used to render the html input
@@ -77,6 +93,10 @@ abstract class Field extends Object
      */
     public function renderActiveField($activeField)
     {
+        $activeField->label($this->label);
+        if($this->hint){
+            $activeField->hint($this->hint);
+        }
         return $activeField;
     }
 
