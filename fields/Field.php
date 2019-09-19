@@ -138,5 +138,14 @@ abstract class Field extends BaseObject
     {
         return true;
     }
+    
+    /**
+     * Return if field has multiple answers like a multi choice select box
+     * @return boolean
+     */
+    public function hasMultipleAnswers()
+    {
+        return false;
+    }
 
 }
