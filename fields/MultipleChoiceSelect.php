@@ -30,11 +30,22 @@ class MultipleChoiceSelect extends Field
     }
     
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function hasMultipleAnswers()
     {
         return true;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function renderValue()
+    {
+        if(is_array($this->value)){
+            return implode(', ', $this->value);
+        }
+        return $this->value;
     }
 
 }
