@@ -112,13 +112,25 @@ class Image extends File
     }
 
     /**
-     * @inherit
+     * {@inheritdoc}
      */
     public function renderInput()
     {
         $html = parent::renderInput();
         if($this->value) {
             $html .= Html::img($this->getFileLink(), ['width' => '100']);
+        }
+        return $html;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function renderActiveField($activeField)
+    {
+        $html = parent::renderActiveField($activeField);
+        if($this->value) {
+            $html .= Html::img($this->getFileLink(), ['width' => '100', 'style' => 'margin-bottom: 20px;']);
         }
         return $html;
     }

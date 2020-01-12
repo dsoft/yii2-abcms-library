@@ -45,6 +45,11 @@ abstract class Field extends BaseObject
     public $additionalData = [];
     
     /**
+     * @var boolean If input is required
+     */
+    public $isRequired;
+    
+    /**
      * @var array
      * The options used to render the html input
      */

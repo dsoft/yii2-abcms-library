@@ -8,11 +8,6 @@ namespace abcms\library\fields;
  */
 class TextEditor extends Field
 {
-
-    /**
-     * @inheritdocs
-     */
-    public $inputOptions = ['class' => 'form-control', 'rows' => 6];
     
     public $settings = [
             'minHeight' => 200,
@@ -29,6 +24,18 @@ class TextEditor extends Field
                     'value' => $this->value,
                     'settings' => $settings,
         ]);
+    }
+    
+        /**
+     * {@inheritdoc}
+     */
+    public function renderActiveField($activeField)
+    {
+        $activeField = parent::renderActiveField($activeField);
+        $activeField->widget(\vova07\imperavi\Widget::className(), [
+            'settings' => $this->settings,
+        ]);
+        return $activeField;
     }
 
     /**

@@ -128,5 +128,29 @@ class File extends Field
         ];
         return $array;
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function addRulesToModel($model)
+    {
+        $oldValue = $model->{$this->inputName};
+        $model->attachBehavior('file_'.$this->inputName, [
+                'class' => \abcms\library\behaviors\FileUploadBehavior::className(),
+                'attribute' => $this->inputName,
+                'extensions' => $this->extensions,
+                'folderName' => $this->folder,
+                'required' => ($this->isRequired && !$oldValue),
+                'oldValue' => $oldValue,
+            ]);
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function isSafe()
+    {
+        return false;
+    }
 
 }

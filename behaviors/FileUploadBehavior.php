@@ -68,12 +68,12 @@ class FileUploadBehavior extends Behavior
     /**
      * @var string Uploading path prefix, aliases can be used.
      */
-    public $pathPrefix = '@webroot/uploads/';
+    public $pathPrefix = '@webroot/';
 
     /**
      * @var string Uploaded file link prefix, aliases can be used.
      */
-    public $linkPrefix = '@web/uploads/';
+    public $linkPrefix = '@web/';
 
     /**
      * @var string Validator type
@@ -85,6 +85,11 @@ class FileUploadBehavior extends Behavior
      * @var string|null Folder name or leave null to get the name from the class name
      */
     public $folderName = null;
+    
+    /**
+     * @var null|string File old value
+     */
+    public $oldValue = null;
 
     /**
      * @inheritdoc
@@ -144,13 +149,25 @@ class FileUploadBehavior extends Behavior
         $attribute = $this->attribute;
         $file = UploadedFile::getInstance($owner, $attribute);
         if(!$file) {
-            if($owner->isAttributeChanged($attribute)) { // to disable overwriting saved file on update if there's no new file
-                $owner->setAttribute($attribute, $owner->getOldAttribute($attribute));
-            }
+            $owner->$attribute = $this->getOldValue();
         }
         else {
-            $owner->setAttribute($attribute, $file);
+            $owner->$attribute = $file;
         }
+    }
+    
+    /**
+     * Return the file attribute old value
+     * @return string|null
+     */
+    protected function getOldValue()
+    {
+        $owner = $this->owner;
+        if($owner->hasMethod('getOldAttribute'))
+        {
+            return $owner->getOldAttribute($this->attribute);
+        }
+        return $this->oldValue;
     }
 
     /**
@@ -170,7 +187,7 @@ class FileUploadBehavior extends Behavior
                 if(FileHelper::createDirectory($directory)) {
                     $mainFilePath = $directory.$fileName;
                     $file->saveAs($mainFilePath);
-                    $owner->setAttribute($attribute, $fileName);
+                    $owner->$attribute = $fileName;
                     $this->afterFileSave($directory, $fileName);
                 }
                 else {
@@ -211,7 +228,7 @@ class FileUploadBehavior extends Behavior
             return $this->folderName;
         }
         else{
-            return $this->returnShortName();
+            return 'uploads/'.$this->returnShortName();
         }
     }
 
