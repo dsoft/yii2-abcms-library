@@ -3,6 +3,7 @@
 namespace abcms\library\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "model".
@@ -45,5 +46,16 @@ class Model extends \yii\db\ActiveRecord
         }
         $id = $model->id;
         return $id;
+    }
+    
+    /**
+     * Return an array where id is the key and className is the value.
+     * Can be used in drop down lists.
+     * @return array
+     */
+    public static function getList()
+    {
+        $models = self::find()->orderBy(['id' => SORT_ASC])->all();
+        return ArrayHelper::map($models, 'id', 'className');
     }
 }
