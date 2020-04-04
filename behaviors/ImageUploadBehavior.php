@@ -131,7 +131,7 @@ class ImageUploadBehavior extends FileUploadBehavior
         $imageName = $owner->getAttribute($attribute);
         $return = null;
         if ($imageName) {
-            $return = Url::base($scheme) . '/uploads/' . $folderName . '/' . $imageName;
+            $return = Url::base($scheme) . '/' . $folderName . '/' . $imageName;
         }
         return $return;
     }
