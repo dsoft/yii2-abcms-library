@@ -4,6 +4,7 @@ namespace abcms\library\fields;
 
 use yii\base\BaseObject;
 use yii\helpers\Html;
+use yii\base\DynamicModel;
 
 /**
  * Field is the base class of all Dynamic Fields/Input classes.
@@ -151,6 +152,42 @@ abstract class Field extends BaseObject
     public function hasMultipleAnswers()
     {
         return false;
+    }
+    
+    /**
+     * Create a DynamicModel from `$fields`
+     * @param Field[] $fields
+     * @return DynamicModel
+     */
+    public static function getDynamicModel($fields)
+    {
+        $attributesNames = [];
+        $requiredAttributes = [];
+        $safeAttributes = [];
+        foreach($fields as $field)
+        {
+            if($field->value){
+                $attributesNames[$field->inputName] = $field->value;
+            }
+            else{
+                $attributesNames[] = $field->inputName;
+            }
+            if($field->isSafe()){
+                $safeAttributes[] = $field->inputName;
+                if($field->isRequired){
+                    $requiredAttributes[] = $field->inputName;
+                }
+            }
+        }
+        $model = new DynamicModel($attributesNames);
+        $model->addRule($safeAttributes, 'safe');
+        if($requiredAttributes){
+            $model->addRule($requiredAttributes, 'required', ['message' => Yii::t('abcms.multilanguage', 'This field cannot be left empty')]);
+        }
+        foreach($fields as $field){
+            $field->addRulesToModel($model);
+        }
+        return $model;
     }
 
 }
