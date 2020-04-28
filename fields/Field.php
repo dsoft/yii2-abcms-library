@@ -2,6 +2,7 @@
 
 namespace abcms\library\fields;
 
+use Yii;
 use yii\base\BaseObject;
 use yii\helpers\Html;
 use yii\base\DynamicModel;
@@ -182,7 +183,7 @@ abstract class Field extends BaseObject
         $model = new DynamicModel($attributesNames);
         $model->addRule($safeAttributes, 'safe');
         if($requiredAttributes){
-            $model->addRule($requiredAttributes, 'required', ['message' => Yii::t('abcms.multilanguage', 'This field cannot be left empty')]);
+            $model->addRule($requiredAttributes, 'required', ['message' => Yii::t('abcms.library', 'This field cannot be left empty')]);
         }
         foreach($fields as $field){
             $field->addRulesToModel($model);
