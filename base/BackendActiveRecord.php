@@ -2,9 +2,9 @@
 
 namespace abcms\library\base;
 
+use Yii;
 use yii\db\ActiveRecord;
 use yii\web\NotFoundHttpException;
-use abcms\multilanguage\Multilanguage;
 use abcms\multilanguage\ActiveDataProvider;
 
 /**
@@ -17,6 +17,11 @@ class BackendActiveRecord extends ActiveRecord
      * @var boolean true if soft removal is enabled and deleted attribute available
      */
     public static $enableDeleted = true;
+
+    /**
+     * @var string Name of the multilanguage component in the configuration
+     */
+    public static $multilanguageComponent = "multilanguage";
 
     /**
      * @inheritdoc
@@ -111,7 +116,7 @@ class BackendActiveRecord extends ActiveRecord
     public static function getFrontendModels($where = [], $ordering = true, $onlyTranslatedModels = true)
     {
         $query = self::getFrontendQuery($where, $ordering);
-        $models = Multilanguage::translateMultiple($query->all(), NULL, $onlyTranslatedModels);
+        $models = Yii::$app->get(static::$multilanguageComponent)->translateMultiple($query->all(), NULL, $onlyTranslatedModels);
         return $models;
     }
 
