@@ -81,10 +81,14 @@ class FileUploadBehavior extends Behavior
     protected $validatorType = 'file';
     
     /**
-     *
      * @var string|null Folder name or leave null to get the name from the class name
      */
     public $folderName = null;
+
+    /**
+     * @var boolean Enable full random name
+     */
+    public $randomName = false;
     
     /**
      * @var null|string File old value
@@ -100,7 +104,7 @@ class FileUploadBehavior extends Behavior
         if(!$this->attribute) {
             throw new InvalidConfigException('"attribute" property must be set.');
         }
-        if(!$this->extensions) {
+        if($this->addValidators && !$this->extensions) {
             throw new InvalidConfigException('"extensions" property must be set.');
         }
     }
@@ -214,8 +218,13 @@ class FileUploadBehavior extends Behavior
     protected function returnNewFileName()
     {
         $fileName = $this->returnShortName();
-        $randomName = $fileName."_".time().mt_rand(10, 99);
-        return $randomName;
+        if($this->randomName){
+            $finalName = Yii::$app->security->generateRandomString();
+        }
+        else{
+            $finalName = $fileName."_".time().mt_rand(10, 99);
+        }
+        return $finalName;
     }
 
     /**
